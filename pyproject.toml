@@ -1,0 +1,28 @@
+[build-system]
+requires = ["setuptools>=61"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "gentra"
+version = "0.1.0"
+description = "GENTRA for multi-source motor imagery EEG"
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = ["numpy>=1.21,<3", "torch>=2.1", "scikit-learn>=1.0", "scipy>=1.7", "mne>=1.0", "pandas>=1.3", "tqdm>=4.60", "einops>=0.6", "pyyaml>=6.0"]
+
+[project.optional-dependencies]
+data = ["moabb>=1.0"]
+dev = ["pytest>=7.0"]
+
+[project.scripts]
+gentra-pretrain = "gentra.pipelines.cli_pretrain:main"
+gentra-finetune = "gentra.pipelines.cli_finetune:main"
+gentra-zs-eval = "gentra.pipelines.cli_zs_eval:main"
+gentra-scpf = "gentra.pipelines.cli_scpf:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["src"]

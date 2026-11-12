@@ -1,0 +1,114 @@
+experiment:
+  name: pretrain_7source
+  seed: 3
+data:
+  train_sources:
+  - Brandl2020
+  - PhysionetMotorImagery
+  - Lee2019
+  - Weibo2014
+  - Cho2017
+  - Zhou2020
+  - Liu2024
+  loo_eval_sources:
+  - Zhou2016
+  mean4_datasets:
+  - BNCI2014001
+  - BNCI2014004
+  - BNCI2015001
+  - Zhou2016
+  zs_eval_class_indices:
+    BNCI2015001:
+    - 1
+    - 2
+  pkl_root: data/source
+  eval_pkl_root: data/source
+  train_cache_dir: data/cache/train
+  eval_cache_dir: data/cache/eval
+preprocess:
+  l_freq: null
+  h_freq: null
+  target_fs: null
+  time_length: null
+  apply_EA: true
+  norm_method: none
+  source_preprocessed: true
+model:
+  name: GENTRA
+  moe_mixer_mode: stack_gated_topk
+  use_rope: true
+  emb_size: 64
+  depth: 4
+  conv_filters: 48
+  conv_temporal_kernel: 31
+  conv_temporal_kernel2: 15
+  pool_kernel: 80
+  pool_stride: 16
+  num_heads: 4
+  head_type: cls_prototype
+  activation: gelu
+  moe_shared_filters: 16
+  moe_private_filters: 24
+  moe_top_k: 8
+  moe_gate_feature_mode: layout
+  moe_stack_kernel: 1
+  num_prototypes: 2
+  proj_dim: 64
+  temperature: 0.2
+  proto_init: kmeans
+  moe_stack_merge_mode: full_1x1
+  shallow_norm_type: batch
+  moe_apply_topk_weight: true
+  prototype_logit_aggregation: logmeanexp
+  rope_mode: attention_qk
+loss:
+  aux_method: cross_domain_supcon_class_negatives
+  lambda_aux: 0.01
+  recon_target: conv_feature
+  lambda_recon: 0.3
+  mask_ratio: 0.3
+  mask_block_tokens: 8
+  recon_warmup_epochs: 5
+  recon_hidden_dim: 128
+  recon_samples_per_token: 16
+  filter_sparsity_l1_weight: 0.03
+  filter_sparsity_l1_target: normalized_only
+training:
+  epochs: 20
+  batch_size: 200
+  class_balanced_sampling: true
+  val_ratio: 0.0
+  source_aware_val: true
+  eval_every: 5
+  zs_eval_every: 1
+  save_zs_eval_epochs:
+  - 5
+  - 10
+  - 15
+  - 20
+  optimizer_type: adamw
+  lr: 0.0001
+  weight_decay: 0.05
+  filter_bias_and_bn: true
+  prototype_lr_scale: 3.0
+  use_lr_scheduler: false
+  use_wd_scheduler: false
+  lr_warmup_epochs: 0
+  lr_decay_start_epoch: 20
+  min_lr_ratio: 0.1
+  wd_decay_start_epoch: 20
+  final_weight_decay: 0.03
+  label_smoothing: 0.0
+  clip_grad_norm: 1.0
+  use_amp: false
+  cudnn_benchmark: false
+  data_workers: 1
+  preprocess_source_workers: 1
+  dataloader_workers: 0
+  persistent_workers: false
+  log_metrics: true
+  quiet: true
+  primary_checkpoint_metric: final_epoch
+  checkpoint_metric_zs: false
+  flush_every_epoch: true
+  channel_mask_max_ratio: 0.3
