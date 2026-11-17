@@ -42,7 +42,11 @@ def scpf_logits(
         if class_id in novel_class_ids:
             fused = support_mean
         else:
-            checkpoint_mean = _unit(np.asarray(checkpoint_prototypes[class_id], dtype=np.float32).mean(axis=0))
+            prototypes = np.asarray(checkpoint_prototypes[class_id], dtype=np.float32)
+            unit_prototypes = prototypes / np.maximum(
+                np.linalg.norm(prototypes, axis=1, keepdims=True), 1e-12,
+            )
+            checkpoint_mean = _unit(unit_prototypes.mean(axis=0))
             fused = _unit((1.0 - alpha) * checkpoint_mean + alpha * support_mean)
         columns.append((query @ fused) / temperature)
     return np.stack(columns, axis=1)
